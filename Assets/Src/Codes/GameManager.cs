@@ -39,6 +39,10 @@ public class GameManager : MonoBehaviour
         AudioManager.instance.PlayBgm(true);
         AudioManager.instance.PlaySfx(AudioManager.Sfx.Select);
     }
+    public void OnLastPositionReceived(float x, float y)
+    {
+        player.transform.position = new Vector2(x, y);
+    }
 
     public void GameOver() {
         StartCoroutine(GameOverRoutine());

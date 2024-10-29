@@ -253,20 +253,38 @@ public class NetworkManager : MonoBehaviour
         }
 
         if (response.data != null && response.data.Length > 0) {
-            if (response.handlerId == 0) {
+            var specificData = ProcessResponseData(response.data);
+            if (response.handlerId == 0 && specificData.lastX != 0 ) {
+                GameManager.instance.OnLastPositionReceived(specificData.lastX, specificData.lastY);
+                GameManager.instance.GameStart();
+            }
+            else if(response.handlerId == 0)
+            {
                 GameManager.instance.GameStart();
             }
             ProcessResponseData(response.data);
         }
     }
 
-    void ProcessResponseData(byte[] data) {
+    [System.Serializable]
+    public class SpecificDataType
+    {
+        public string deviceId;
+        public float lastX;
+        public float lastY;
+    }
+
+
+    SpecificDataType ProcessResponseData(byte[] data) {
         try {
             // var specificData = Packets.Deserialize<SpecificDataType>(data);
             string jsonString = Encoding.UTF8.GetString(data);
+            var specificData = JsonUtility.FromJson<SpecificDataType>(jsonString);
             Debug.Log($"Processed SpecificDataType: {jsonString}");
+            return specificData;
         } catch (Exception e) {
             Debug.LogError($"Error processing response data: {e.Message}");
+            return null;
         }
     }
 
