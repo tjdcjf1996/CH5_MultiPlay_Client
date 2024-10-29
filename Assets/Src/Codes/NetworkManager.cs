@@ -160,12 +160,20 @@ public class NetworkManager : MonoBehaviour
         Array.Copy(header, 0, packet, 0, header.Length);
         Array.Copy(data, 0, packet, header.Length, data.Length);
 
-        await Task.Delay(GameManager.instance.latency);
+        // await Task.Delay(GameManager.instance.latency);
         
         // 패킷 전송
         stream.Write(packet, 0, packet.Length);
     }
 
+    void SendPingPacket(long timestamp){
+        PingPayload pingPayload = new PingPayload
+        {
+            timestamp = timestamp
+        };
+        
+        SendPacket(pingPayload, (uint)Packets.HandlerIds.PONG);
+    }
     void SendInitialPacket() {
         InitialPayload initialPayload = new InitialPayload
         {
@@ -231,6 +239,9 @@ public class NetworkManager : MonoBehaviour
 
             switch (packetType)
             {
+                case Packets.PacketType.Ping:
+                    HandlePingPacket(packetData);
+                    break;
                 case Packets.PacketType.Normal:
                     HandleNormalPacket(packetData);
                     break;
@@ -238,6 +249,17 @@ public class NetworkManager : MonoBehaviour
                     HandleLocationPacket(packetData);
                     break;
             }
+        }
+    }
+
+    void HandlePingPacket(byte[] packetData) {
+        // 패킷 데이터 처리
+        var response = Packets.Deserialize<PingPayload>(packetData);
+
+         if (response.timestamp != null ) {
+            long timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            Debug.Log($"Server receiving time : {timestamp - response.timestamp}");
+            SendPingPacket(response.timestamp);
         }
     }
 
