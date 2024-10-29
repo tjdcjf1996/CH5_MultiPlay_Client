@@ -246,11 +246,19 @@ public class NetworkManager : MonoBehaviour
         var response = Packets.Deserialize<Response>(packetData);
         // Debug.Log($"HandlerId: {response.handlerId}, responseCode: {response.responseCode}, timestamp: {response.timestamp}");
         
+    if (response.responseCode == 1 && !uiNotice.activeSelf) {
+            AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);
+            StartCoroutine(NoticeRoutine(3));
+            return;
+        }
+
         if (response.responseCode != 0 && !uiNotice.activeSelf) {
             AudioManager.instance.PlaySfx(AudioManager.Sfx.LevelUp);
             StartCoroutine(NoticeRoutine(2));
             return;
         }
+
+        
 
         if (response.data != null && response.data.Length > 0) {
             var specificData = ProcessResponseData(response.data);
