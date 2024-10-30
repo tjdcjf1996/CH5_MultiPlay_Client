@@ -75,6 +75,7 @@ public class NetworkManager : MonoBehaviour
      bool ConnectToServer(string ip, int port) {
         try {
             tcpClient = new TcpClient(ip, port);
+            tcpClient.NoDelay = true;
             stream = tcpClient.GetStream();
             Debug.Log($"Connected to {ip}:{port}");
 
@@ -160,7 +161,7 @@ public class NetworkManager : MonoBehaviour
         Array.Copy(header, 0, packet, 0, header.Length);
         Array.Copy(data, 0, packet, header.Length, data.Length);
 
-        // await Task.Delay(GameManager.instance.latency);
+        await Task.Delay(GameManager.instance.latency);
         
         // 패킷 전송
         stream.Write(packet, 0, packet.Length);
@@ -171,8 +172,22 @@ public class NetworkManager : MonoBehaviour
         {
             timestamp = timestamp
         };
-        
-        SendPacket(pingPayload, (uint)Packets.HandlerIds.PONG);
+
+        // ArrayBufferWriter<byte>를 사용하여 직렬화
+        var pingPacketWriter = new ArrayBufferWriter<byte>();
+        Packets.Serialize(pingPacketWriter, pingPayload);
+        byte[] data = pingPacketWriter.WrittenSpan.ToArray();
+
+        // 헤더 생성
+        byte[] header = CreatePacketHeader(data.Length, Packets.PacketType.Ping);
+
+        // 패킷 생성
+        byte[] packet = new byte[header.Length + data.Length];
+        Array.Copy(header, 0, packet, 0, header.Length);
+        Array.Copy(data, 0, packet, header.Length, data.Length);
+        long timestamp2 = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        Debug.Log($"서버에게 PING 보냄 : {timestamp2}");
+        stream.Write(packet, 0, packet.Length);
     }
     void SendInitialPacket() {
         InitialPayload initialPayload = new InitialPayload
@@ -255,10 +270,11 @@ public class NetworkManager : MonoBehaviour
     void HandlePingPacket(byte[] packetData) {
         // 패킷 데이터 처리
         var response = Packets.Deserialize<PingPayload>(packetData);
-
-         if (response.timestamp != null ) {
             long timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            Debug.Log($"Server receiving time : {timestamp - response.timestamp}");
+            Debug.Log($"서버로부터 PING 받음 : {timestamp}");
+         if (response.timestamp != null ) {
+            
+            
             SendPingPacket(response.timestamp);
         }
     }

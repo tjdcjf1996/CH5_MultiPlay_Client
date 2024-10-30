@@ -10,7 +10,6 @@ public class Packets : MonoBehaviour
     public enum PacketType { Ping, Normal, Location = 3 }
     public enum HandlerIds {
         Init = 0,
-        PONG = 1,
         LocationUpdate = 2 
     }
 
