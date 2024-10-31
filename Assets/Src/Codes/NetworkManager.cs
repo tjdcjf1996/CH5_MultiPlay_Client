@@ -27,11 +27,21 @@ public class NetworkManager : MonoBehaviour
     void Awake() {        
         instance = this;
         wait = new WaitForSecondsRealtime(5);
+
+        Application.wantsToQuit += OnWantsToQuit;
     }
+
+
+    private bool OnWantsToQuit()
+    {
+        Disconnect();
+        return true;
+    }
+
     public void OnStartButtonClicked() {
         // string ip = ipInputField.text;
         // string port = portInputField.text;
-        string ip = "3.36.90.109";
+        string ip = "127.0.0.1";
         string port = "7407";
 
         if (IsValidPort(port)) {
@@ -351,4 +361,20 @@ public class NetworkManager : MonoBehaviour
             Debug.LogError($"Error HandleLocationPacket: {e.Message}");
         }
     }
+
+    private void OnDestroy()
+    {
+        Disconnect();
+    }
+
+    private void Disconnect()
+    {
+        if (tcpClient != null)
+        {
+            tcpClient.Close();
+            tcpClient.Dispose();
+            tcpClient = null;
+        }
+    }
+
 }
