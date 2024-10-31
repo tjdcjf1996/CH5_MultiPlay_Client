@@ -29,8 +29,10 @@ public class NetworkManager : MonoBehaviour
         wait = new WaitForSecondsRealtime(5);
     }
     public void OnStartButtonClicked() {
-        string ip = ipInputField.text;
-        string port = portInputField.text;
+        // string ip = ipInputField.text;
+        // string port = portInputField.text;
+        string ip = "3.36.90.109";
+        string port = "7407";
 
         if (IsValidPort(port)) {
             int portNumber = int.Parse(port);
@@ -187,7 +189,7 @@ public class NetworkManager : MonoBehaviour
         Array.Copy(data, 0, packet, header.Length, data.Length);
         long timestamp2 = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         Debug.Log($"서버에게 PING 보냄 : {timestamp2}");
-        stream.Write(packet, 0, packet.Length);
+        stream.WriteAsync(packet, 0, packet.Length);
     }
     void SendInitialPacket() {
         InitialPayload initialPayload = new InitialPayload
@@ -270,8 +272,6 @@ public class NetworkManager : MonoBehaviour
     void HandlePingPacket(byte[] packetData) {
         // 패킷 데이터 처리
         var response = Packets.Deserialize<PingPayload>(packetData);
-            long timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            Debug.Log($"서버로부터 PING 받음 : {timestamp}");
          if (response.timestamp != null ) {
             
             

@@ -39,8 +39,8 @@ public class Player : MonoBehaviour
     }
 
     // Update is called once per frame
-    private float updateInterval = 0.05f; // 100ms마다 전송
-private float nextUpdateTime;
+    
+
 
 void Update()
 {
@@ -52,14 +52,9 @@ void Update()
     inputVec.x = Input.GetAxisRaw("Horizontal");
     inputVec.y = Input.GetAxisRaw("Vertical");
 
-    // 플레이어가 이동 중인지 확인
-    if (inputVec.x != 0 || inputVec.y != 0) {
-        if (Time.time >= nextUpdateTime) {
-            // 위치 이동 패킷 전송 -> 서버로
-            NetworkManager.instance.SendLocationUpdatePacket(rigid.position.x, rigid.position.y);
-            nextUpdateTime = Time.time + updateInterval; // 다음 전송 시간 설정
-        }
-    }
+    NetworkManager.instance.SendLocationUpdatePacket(rigid.position.x, rigid.position.y);
+
+
 }
 
 

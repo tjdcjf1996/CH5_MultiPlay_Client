@@ -9,9 +9,9 @@ public class GameManager : MonoBehaviour
     [Header("# Game Control")]
     public bool isLive;
     public float gameTime;
-    public int targetFrameRate;
+    public int targetFrameRate = 60;
     public string version = "1.0.0";
-    public int latency = 1000;
+    public int latency = 2;
 
     [Header("# Player Info")]
     public uint playerId;
@@ -25,8 +25,9 @@ public class GameManager : MonoBehaviour
 
     void Awake() {
         instance = this;
+        QualitySettings.vSyncCount = 0; // V-Sync 비활성화
         Application.targetFrameRate = targetFrameRate;
-        playerId = (uint)Random.Range(0, 4);
+        playerId = (uint)Random.Range(0, 4);  
     }
 
     public void GameStart() {
