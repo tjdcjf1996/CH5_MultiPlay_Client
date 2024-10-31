@@ -41,7 +41,7 @@ public class NetworkManager : MonoBehaviour
     public void OnStartButtonClicked() {
         // string ip = ipInputField.text;
         // string port = portInputField.text;
-        string ip = "127.0.0.1";
+        string ip = "3.36.90.109";
         string port = "7407";
 
         if (IsValidPort(port)) {
